@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "891791441542",
+    "project_id": "smart-seamen",
+    "storage_bucket": "smart-seamen.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891791441542:android:0ec229b087394a78751b07",
+        "android_client_info": {
+          "package_name": "com.smartseaman.smartseaman"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "891791441542-knbsvemnts3fvck0halrh3ahkem9se7j.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartseaman.smartseaman",
+            "certificate_hash": "443a57321ce52aacca18691899631b13c30e0bcc"
+          }
+        },
+        {
+          "client_id": "891791441542-pre3p6i6otefcp9kvaoks9lc4ujdnpcg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZqYWNiuv48jjJjr0lA-yfUX_NM25F530"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "891791441542-pre3p6i6otefcp9kvaoks9lc4ujdnpcg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "891791441542-1ganqnk3l95bgkcrfj7q86o9cj9vssk3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.smartseamen.smartseamen"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891791441542:android:5de8f1dee44cc405751b07",
+        "android_client_info": {
+          "package_name": "com.smartseamen.smartseamen"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "891791441542-5sp7dr4e4ji8c4ur1qb9h7bia5mf5js1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.smartseamen.smartseamen",
+            "certificate_hash": "ab09ded46efa9ea63500dd0a0b503960cdec5945"
+          }
+        },
+        {
+          "client_id": "891791441542-pre3p6i6otefcp9kvaoks9lc4ujdnpcg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZqYWNiuv48jjJjr0lA-yfUX_NM25F530"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "891791441542-pre3p6i6otefcp9kvaoks9lc4ujdnpcg.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "891791441542-1ganqnk3l95bgkcrfj7q86o9cj9vssk3.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.smartseamen.smartseamen"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
