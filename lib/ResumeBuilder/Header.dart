@@ -13,15 +13,11 @@ import '../Profile/UserDetailsProvider.dart';
 import '../asynccallprovider.dart';
 import '../constants.dart';
 import 'DangerousCargoEndorsment/DangerourCargo.dart';
-import 'DangerousCargoEndorsment/DangerousCargoProvider.dart';
-import 'Documents/DocumentScreenProvider.dart';
 import 'GeneratePDFProvider.dart';
 import 'PersonalInformation/GetResumeProvider.dart';
 import 'PersonalInformation/ResumeBuilder.dart';
 import 'PreviousEmployeeReference.dart/PreviousEmployee.dart';
-import 'PreviousEmployeeReference.dart/PreviousEmplyeeProvider.dart';
 import 'PublishResumeProvider.dart';
-import 'SeaServiceRecord/SeaServiceProvider.dart';
 import 'SeaServiceRecord/SeaServiceRecord.dart';
 
 class ResumeHeader extends StatefulWidget {
@@ -45,7 +41,8 @@ class _ResumeHeaderState extends State<ResumeHeader> {
       isDangerous = false,
       isDocument = false,
       isSeaService = false,
-      isEmployer = false;
+      isEmployer = false,
+      isResumePublished = false;
 
   @override
   void initState() {
@@ -252,15 +249,12 @@ class _ResumeHeaderState extends State<ResumeHeader> {
 
   _showPublishUnPublishButton(BuildContext context) {
     bool isPublished = false;
-    if (isPersonal &&
-        isDocument &&
-        isDangerous &&
-        isSeaService) isPublished = true;
+    if (isPersonal && isDocument && isDangerous && isSeaService)
+      isPublished = true;
     return ElevatedButton(
       style: bluebuttonStyle(),
       onPressed: () {
-        if (Provider.of<GetResumeProvider>(context, listen: false)
-            .isResumePublished) {
+        if (isResumePublished) {
           _showIncompleteDialog(
               context,
               'Unpublish Resume',
@@ -283,9 +277,7 @@ class _ResumeHeaderState extends State<ResumeHeader> {
         }
       },
       child: Text(
-        Provider.of<GetResumeProvider>(context, listen: false).isResumePublished
-            ? 'Unpublish Resume'
-            : 'Publish Resume',
+        isResumePublished ? 'Unpublish Resume' : 'Publish Resume',
         style: const TextStyle(color: kbackgroundColor),
       ),
     );
@@ -368,10 +360,10 @@ class _ResumeHeaderState extends State<ResumeHeader> {
     ResumePublishStatusProvider publishProvider =
         Provider.of<ResumePublishStatusProvider>(context, listen: false);
     if (await publishProvider.callPublishStatusPostapi(publishStatus, header)) {
-      Provider.of<GetResumeProvider>(context, listen: false).isResumePublished =
-          !Provider.of<GetResumeProvider>(context, listen: false)
-              .isResumePublished;
-      Provider.of<GetResumeProvider>(context, listen: false).isResumePublished
+      isResumePublished = !isResumePublished;
+      prefs.setBool('isResumePublished', isResumePublished);
+
+      isResumePublished
           ? displaysnackbar('Your resume has been published successfully.')
           : displaysnackbar('Your resume has been unpublished successfully.');
     } else {
@@ -381,8 +373,7 @@ class _ResumeHeaderState extends State<ResumeHeader> {
   }
 
   _showDownloadResumeButton(BuildContext context) {
-    return Provider.of<GetResumeProvider>(context, listen: false)
-            .isResumePublished
+    return isResumePublished
         ? InkWell(
             onTap: () => Provider.of<UserDataProvider>(context, listen: false)
                     .canDownloadResume
@@ -475,6 +466,7 @@ class _ResumeHeaderState extends State<ResumeHeader> {
       isDangerous = prefs.getBool('DangerousTab') ?? false;
       isSeaService = prefs.getBool('SeaServiceTab') ?? false;
       isEmployer = prefs.getBool('EmployerTab') ?? false;
+      isResumePublished = prefs.getBool('isResumePublished') ?? false;
     });
   }
 }

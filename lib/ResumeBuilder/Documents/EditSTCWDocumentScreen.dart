@@ -7,7 +7,6 @@ import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
 import '../../DropdownBloc.dart';
 import '../../DropdownContainer.dart';
 import '../../IssuingAuthorityErrorBloc.dart';
@@ -47,7 +46,7 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
   static final _formKey = GlobalKey<FormState>();
   static final DateFormat formatter = DateFormat('yyyy-MM-dd');
   DateTime selectedDate = DateTime.now();
-  final List<List<RadioButtonBloc>> _mandatoryValidTillOptionsStcwBloc = [],
+  final List<List<IndosNoBloc>> _mandatoryValidTillOptionsStcwBloc = [],
       _optionalValidTillOptionsStcwBloc = [];
   final List<RadioButtonBloc> _displayStcwMandatoryValidDate = [],
       _displayStcwOptionalValidDate = [],
@@ -893,19 +892,13 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
     return StreamBuilder(
       stream: isMandatory
           ? _mandatoryValidTillOptionsStcwBloc[innerindex][radioindex]
-              .stateRadioButtonStrean
+              .stateIndosNoStrean
           : _optionalValidTillOptionsStcwBloc[innerindex][radioindex]
-              .stateRadioButtonStrean,
+              .stateIndosNoStrean,
       builder: (context, snapshot) {
         isMandatory
-            ? checkInitialData(
-                _mandatoryValidTillOptionsStcwBloc[innerindex][radioindex]
-                    .radioValue,
-                innerindex)
-            : checkInitialOptionalData(
-                _optionalValidTillOptionsStcwBloc[innerindex][radioindex]
-                    .radioValue,
-                innerindex);
+            ? checkInitialData(innerindex)
+            : checkInitialOptionalData(innerindex);
         if (isMandatory) {
           if (innerindex < _mandatoryTempRadioValue.length) {
             checkInitialTempData(snapshot, innerindex, isMandatory);
@@ -921,20 +914,22 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
             children: [
               InkWell(
                 onTap: () {
-                  isMandatory
-                      ? setMandatoryDates(radioindex, innerindex)
-                      : setOptionalDates(radioindex, innerindex);
+                  setState(() {
+                    isMandatory
+                        ? setMandatoryDates(radioindex, innerindex)
+                        : setOptionalDates(radioindex, innerindex);
+                  });
                 },
                 child: ValidTillOptions(
                     radioValue: isMandatory
                         ? _mandatoryValidTillOptionsStcwBloc[innerindex]
                                     [radioindex]
-                                .radioValue
+                                .isedited
                             ? true
                             : false
                         : _optionalValidTillOptionsStcwBloc[innerindex]
                                     [radioindex]
-                                .radioValue
+                                .isedited
                             ? true
                             : false,
                     text: Provider.of<GetValidTypeProvider>(context,
@@ -956,15 +951,16 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
             .add(RadioButtonAction.True);
         _displayStcwMandatoryValidDate[innerindex].radioValue = true;
       } else {
+        print('Changeing dattes');
         _displayStcwMandatoryValidDate[innerindex]
             .eventRadioButtonSink
             .add(RadioButtonAction.False);
         _displayStcwMandatoryValidDate[innerindex].radioValue = false;
       }
       _mandatoryValidTillOptionsStcwBloc[innerindex][radioindex]
-          .eventRadioButtonSink
-          .add(RadioButtonAction.True);
-      _mandatoryValidTillOptionsStcwBloc[innerindex][radioindex].radioValue =
+          .eventIndosNoSink
+          .add(IndosNoAction.True);
+      _mandatoryValidTillOptionsStcwBloc[innerindex][radioindex].isedited =
           true;
       _stcwMandatoryValidDateErrorBloc[innerindex]
           .eventResumeIssuingAuthoritySink
@@ -977,9 +973,9 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
           i++) {
         if (i != radioindex) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][i]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.False);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][i].radioValue = false;
+              .eventIndosNoSink
+              .add(IndosNoAction.False);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][i].isedited = false;
         }
       }
     });
@@ -990,17 +986,21 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
       _displayStcwOptionalValidDate[innerindex]
           .eventRadioButtonSink
           .add(RadioButtonAction.True);
+      _displayStcwOptionalValidDate[innerindex].radioValue = true;
     } else {
       _displayStcwOptionalValidDate[innerindex]
           .eventRadioButtonSink
           .add(RadioButtonAction.False);
+      _displayStcwOptionalValidDate[innerindex].radioValue = false;
     }
     _optionalValidTillOptionsStcwBloc[innerindex][radioindex]
-        .eventRadioButtonSink
-        .add(RadioButtonAction.True);
+        .eventIndosNoSink
+        .add(IndosNoAction.True);
+    _optionalValidTillOptionsStcwBloc[innerindex][radioindex].isedited = true;
     _stcwOptionalValidDateErrorBloc[innerindex]
         .eventResumeIssuingAuthoritySink
         .add(ResumeErrorIssuingAuthorityAction.False);
+    _stcwOptionalValidDateErrorBloc[innerindex].showtext = false;
     for (int i = 0;
         i <
             Provider.of<GetValidTypeProvider>(context, listen: false)
@@ -1009,8 +1009,9 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
         i++) {
       if (i != radioindex) {
         _optionalValidTillOptionsStcwBloc[innerindex][i]
-            .eventRadioButtonSink
-            .add(RadioButtonAction.False);
+            .eventIndosNoSink
+            .add(IndosNoAction.False);
+        _optionalValidTillOptionsStcwBloc[innerindex][i].isedited = false;
       }
     }
   }
@@ -1084,13 +1085,13 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
                 ? _displayStcwMandatoryValidDate[index].stateRadioButtonStrean
                 : _displayStcwOptionalValidDate[index].stateRadioButtonStrean,
             builder: (context, snapshot) {
-              if (isMandatory
+              return isMandatory
                   ? _displayStcwMandatoryValidDate[index].radioValue
-                  : _displayStcwOptionalValidDate[index].radioValue) {
-                return _buildDates(index, isSignOn, isMandatory);
-              } else {
-                return Container();
-              }
+                      ? _buildDates(index, isSignOn, isMandatory)
+                      : Container()
+                  : _displayStcwOptionalValidDate[index].radioValue
+                      ? _buildDates(index, isSignOn, isMandatory)
+                      : Container();
             },
           );
   }
@@ -1281,7 +1282,7 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
         i++) {
       String expiry = "";
       for (int k = 0; k < 3; k++) {
-        if (_mandatoryValidTillOptionsStcwBloc[i][k].radioValue) {
+        if (_mandatoryValidTillOptionsStcwBloc[i][k].isedited) {
           expiry = Provider.of<GetValidTypeProvider>(context, listen: false)
               .validTypeId[k];
         }
@@ -1313,7 +1314,15 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
     return postMandatoryStcwData;
   }
 
-  void checkInitialData(bool value, int innerindex) {
+  void checkInitialData(int innerindex) {
+    bool value = false;
+    for (int i = 0;
+        i < _mandatoryValidTillOptionsStcwBloc[innerindex].length;
+        i++) {
+      if (_mandatoryValidTillOptionsStcwBloc[innerindex][i].isedited) {
+        value = true;
+      }
+    }
     if (!value &&
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .stcwValidTillTypeId
@@ -1326,41 +1335,57 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
                 .stcwValidTillTypeId[innerindex] ==
             lifetimeValidType) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][0]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][0].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][0].isedited = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][0].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][0].isedited = false;
         }
         if (Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .stcwValidTillTypeId[innerindex] ==
             unlimitedValidType) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][1]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][1].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][1].isedited = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][1].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][1].isedited = false;
         }
         if (Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .stcwValidTillTypeId[innerindex] ==
             dateValidType) {
+          print('Getting here');
           _mandatoryValidTillOptionsStcwBloc[innerindex][2]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][2].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][2].isedited = true;
           _displayStcwMandatoryValidDate[innerindex]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
           _displayStcwMandatoryValidDate[innerindex].radioValue = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][2].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][2]
+              .eventIndosNoSink
+              .add(IndosNoAction.False);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][2].isedited = false;
+          _displayStcwMandatoryValidDate[innerindex]
+              .eventRadioButtonSink
+              .add(RadioButtonAction.False);
+          _displayStcwMandatoryValidDate[innerindex].radioValue = false;
         }
       }
     }
   }
 
-  void checkInitialOptionalData(bool value, int innerindex) {
+  void checkInitialOptionalData(int innerindex) {
+    bool value = false;
+    for (int i = 0;
+        i < _optionalValidTillOptionsStcwBloc[innerindex].length;
+        i++) {
+      if (_optionalValidTillOptionsStcwBloc[innerindex][i].isedited) {
+        value = true;
+      }
+    }
     if (!value &&
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .stcwOptionalValidTillTypeId
@@ -1373,35 +1398,35 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
                 .stcwOptionalValidTillTypeId[innerindex] ==
             lifetimeValidType) {
           _optionalValidTillOptionsStcwBloc[innerindex][0]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][0].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][0].isedited = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][0].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][0].isedited = false;
         }
         if (Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .stcwOptionalValidTillTypeId[innerindex] ==
             unlimitedValidType) {
           _optionalValidTillOptionsStcwBloc[innerindex][1]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][1].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][1].isedited = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][1].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][1].isedited = false;
         }
         if (Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .stcwOptionalValidTillTypeId[innerindex] ==
             dateValidType) {
           _optionalValidTillOptionsStcwBloc[innerindex][2]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][2].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][2].isedited = true;
           _displayStcwOptionalValidDate[innerindex]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
           _displayStcwOptionalValidDate[innerindex].radioValue = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][2].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][2].isedited = false;
         }
       }
     }
@@ -1413,62 +1438,66 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
       if (!snapshot.hasData) {
         if (_mandatoryTempRadioValue[innerindex][0] == true) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][0]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][0].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][0].isedited = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][0].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][0].isedited = false;
         }
         if (_mandatoryTempRadioValue[innerindex][1] == true) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][1]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][1].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][1].isedited = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][1].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][1].isedited = false;
         }
         if (_mandatoryTempRadioValue[innerindex][2] == true) {
           _mandatoryValidTillOptionsStcwBloc[innerindex][2]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _mandatoryValidTillOptionsStcwBloc[innerindex][2].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _mandatoryValidTillOptionsStcwBloc[innerindex][2].isedited = true;
           _displayStcwMandatoryValidDate[innerindex]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
           _displayStcwMandatoryValidDate[innerindex].radioValue = true;
         } else {
-          _mandatoryValidTillOptionsStcwBloc[innerindex][2].radioValue = false;
+          _mandatoryValidTillOptionsStcwBloc[innerindex][2].isedited = false;
+          _displayStcwMandatoryValidDate[innerindex]
+              .eventRadioButtonSink
+              .add(RadioButtonAction.False);
+          _displayStcwMandatoryValidDate[innerindex].radioValue = false;
         }
       }
     } else {
       if (!snapshot.hasData) {
         if (_optionalTempRadioValue[innerindex][0] == true) {
           _optionalValidTillOptionsStcwBloc[innerindex][0]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][0].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][0].isedited = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][0].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][0].isedited = false;
         }
         if (_optionalTempRadioValue[innerindex][1] == true) {
           _optionalValidTillOptionsStcwBloc[innerindex][1]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][1].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][1].isedited = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][1].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][1].isedited = false;
         }
         if (_optionalTempRadioValue[innerindex][2] == true) {
           _optionalValidTillOptionsStcwBloc[innerindex][2]
-              .eventRadioButtonSink
-              .add(RadioButtonAction.True);
-          _optionalValidTillOptionsStcwBloc[innerindex][2].radioValue = true;
+              .eventIndosNoSink
+              .add(IndosNoAction.True);
+          _optionalValidTillOptionsStcwBloc[innerindex][2].isedited = true;
           _displayStcwOptionalValidDate[innerindex]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
           _displayStcwOptionalValidDate[innerindex].radioValue = true;
         } else {
-          _optionalValidTillOptionsStcwBloc[innerindex][2].radioValue = false;
+          _optionalValidTillOptionsStcwBloc[innerindex][2].isedited = false;
         }
       }
     }
@@ -1557,7 +1586,7 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
         _mandatoryTempValidTillText.add(_stcwMandatoryExpiryDate[i].text);
         List<bool> tempList = [];
         for (int k = 0; k < 3; k++) {
-          if (_mandatoryValidTillOptionsStcwBloc[i][k].radioValue) {
+          if (_mandatoryValidTillOptionsStcwBloc[i][k].isedited) {
             tempList.add(true);
           } else {
             tempList.add(false);
@@ -1568,21 +1597,18 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
 
       _mandatoryDocValue.clear();
       _stcwMandatoryCertificateNo.clear();
+      print(_stcwMandatoryIssueDate);
       _stcwMandatoryIssueDate.clear();
       _stcwMandatoryExpiryDate.clear();
     } else {
-      for (int i = 0;
-          i <
-              Provider.of<ResumeDocumentProvider>(context, listen: false)
-                  .competencyOptionalLength;
-          i++) {
+      for (int i = 0; i < _optionalTempStcwDocName.length; i++) {
         _optionalTempStcwDocName.add(_optionalDocValue[i]);
         _optionalTempCertificateNo.add(_stcwOptionalCertificateNo[i].text);
         _optionalTempIssueDate.add(_stcwOptionalIssueDate[i].text);
         _optionalTempValidTillText.add(_stcwOptionalExpiryDate[i].text);
         List<bool> tempList = [];
         for (int k = 0; k < 3; k++) {
-          if (_optionalValidTillOptionsStcwBloc[i][k].radioValue) {
+          if (_optionalValidTillOptionsStcwBloc[i][k].isedited) {
             tempList.add(true);
           } else {
             tempList.add(false);
@@ -1614,9 +1640,9 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
       _mandatoryErrorSTCWDocName.add(ResumeErrorIssuingAuthorityBloc());
       _mandatoryDocDropdownBloc.add(DropdownBloc());
       _mandatoryDocValue.add("");
-      List<RadioButtonBloc> tempValidTillDatebloc = [];
+      List<IndosNoBloc> tempValidTillDatebloc = [];
       for (int k = 0; k < 3; k++) {
-        tempValidTillDatebloc.add(RadioButtonBloc());
+        tempValidTillDatebloc.add(IndosNoBloc());
       }
       _mandatoryValidTillOptionsStcwBloc.add(tempValidTillDatebloc);
 
@@ -1658,11 +1684,11 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
       _displayStcwOptionalValidDate.add(RadioButtonBloc());
       _optionalErrorSTCWDocName.add(ResumeErrorIssuingAuthorityBloc());
       _optionalDocDropdownBloc.add(DropdownBloc());
-      _showMandatoryDropDownBloc.add(IndosNoBloc());
+      _showOptionalDropDownBloc.add(IndosNoBloc());
       _optionalDocValue.add("");
-      List<RadioButtonBloc> tempValidTillDatebloc = [];
+      List<IndosNoBloc> tempValidTillDatebloc = [];
       for (int k = 0; k < 3; k++) {
-        tempValidTillDatebloc.add(RadioButtonBloc());
+        tempValidTillDatebloc.add(IndosNoBloc());
       }
       _optionalValidTillOptionsStcwBloc.add(tempValidTillDatebloc);
 
@@ -1775,8 +1801,8 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
     List<bool> stcwValid = [];
     for (int k = 0; k < 3; k++) {
       stcwValid.add(isMandatory
-          ? _mandatoryValidTillOptionsStcwBloc[i][k].radioValue
-          : _optionalValidTillOptionsStcwBloc[i][k].radioValue);
+          ? _mandatoryValidTillOptionsStcwBloc[i][k].isedited
+          : _optionalValidTillOptionsStcwBloc[i][k].isedited);
     }
 
     if (!stcwValid.contains(true)) {
@@ -1802,7 +1828,7 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
         i++) {
       String expiry = "";
       for (int k = 0; k < 3; k++) {
-        if (_optionalValidTillOptionsStcwBloc[i][k].radioValue) {
+        if (_optionalValidTillOptionsStcwBloc[i][k].isedited) {
           expiry = Provider.of<GetValidTypeProvider>(context, listen: false)
               .validTypeId[k];
         }
@@ -1829,6 +1855,15 @@ class _EditSTCWDocumentScreenState extends State<EditSTCWDocumentScreen> {
         issueDate: _stcwOptionalIssueDate[i].text,
         validType: expiry,
       ));
+    }
+
+    for (int i = 0; i < postStcwData.length; i++) {
+      print(postStcwData[i].certificateNo);
+      print(postStcwData[i].id);
+      print(postStcwData[i].documentId);
+      print(postStcwData[i].issueDate);
+      print(postStcwData[i].validDate);
+      print(postStcwData[i].validType);
     }
 
     return postStcwData;

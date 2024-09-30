@@ -242,8 +242,7 @@ class _FilterScreenState extends State<FilterScreen> {
                   child: const Text(
                     'Clear',
                     style: TextStyle(
-                        color: kgreenPrimaryColor,
-                        fontWeight: FontWeight.bold),
+                        color: kgreenPrimaryColor, fontWeight: FontWeight.bold),
                   ),
                 ),
               ],
@@ -390,16 +389,21 @@ class _FilterScreenState extends State<FilterScreen> {
                                                                     index]
                                                                 .radioValue,
                                                 onChanged: (value) {
-                                                  changeValues(
-                                                      dropdownIndex, index);
-                                                  print(selectedcompanies);
+                                                  setState(() {
+                                                    changeValues(
+                                                        dropdownIndex, index);
+                                                    print(selectedcompanies);
+                                                  });
                                                 });
                                           },
                                         ),
                                         InkWell(
                                           onTap: () {
-                                            changeValues(dropdownIndex, index);
-                                            print(selectedcompanies);
+                                            setState(() {
+                                              changeValues(
+                                                  dropdownIndex, index);
+                                              print(selectedcompanies);
+                                            });
                                           },
                                           child: SizedBox(
                                             width: MediaQuery.of(context)
@@ -407,27 +411,28 @@ class _FilterScreenState extends State<FilterScreen> {
                                                     .width *
                                                 0.4,
                                             child: Text(dropdownIndex == 0
-                                                ? Provider.of<GetAdvancedSearchProvider>(
+                                                ? Provider.of<
+                                                            GetAdvancedSearchProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .companyName[index]
+                                                : dropdownIndex == 1
+                                                    ? Provider.of<
+                                                                GetAdvancedSearchProvider>(
                                                             context,
                                                             listen: false)
-                                                        .companyName[index]
-                                                : dropdownIndex == 1
-                                                    ? Provider.of<GetAdvancedSearchProvider>(
+                                                        .rankName[index]
+                                                    : dropdownIndex == 2
+                                                        ? Provider.of<
+                                                                    GetAdvancedSearchProvider>(
                                                                 context,
                                                                 listen: false)
-                                                            .rankName[index] 
-                                                    : dropdownIndex == 2
-                                                        ? Provider.of<GetAdvancedSearchProvider>(
-                                                                        context,
-                                                                        listen:
-                                                                            false)
-                                                                    .vesselName[
-                                                                index]
-                                                        : Provider.of<GetAdvancedSearchProvider>(
-                                                                    context,
-                                                                    listen:
-                                                                        false)
-                                                                .nationalityName[index] ),
+                                                            .vesselName[index]
+                                                        : Provider.of<
+                                                                    GetAdvancedSearchProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .nationalityName[index]),
                                           ),
                                         ),
                                       ],
@@ -895,13 +900,15 @@ class _FilterScreenState extends State<FilterScreen> {
               color: kbackgroundColor,
             ),
             onDeleted: () {
-              deleteChips(dropdownIndex, i);
+              setState(() {
+                deleteChips(dropdownIndex, i);
+              });
             },
             label: Text(
               dropdownIndex == 0
                   ? selectedcompanies[i]
                   : dropdownIndex == 1
-                      ? selectedranks[i] 
+                      ? selectedranks[i]
                       : dropdownIndex == 2
                           ? selectedvessels[i]
                           : selectednationality[i],
@@ -946,10 +953,12 @@ class _FilterScreenState extends State<FilterScreen> {
 
   void changeValues(int dropdownIndex, int index) {
     if (dropdownIndex == 0) {
+      print(_companiesListBloc[index].radioValue);
       if (_companiesListBloc[index].radioValue) {
         _companiesListBloc[index]
             .eventRadioButtonSink
             .add(RadioButtonAction.False);
+        _companiesListBloc[index].radioValue = false;
         selectedcompanies.removeAt(selectedcompanies.indexOf(
             Provider.of<GetAdvancedSearchProvider>(context, listen: false)
                 .companyName[index]));
@@ -968,6 +977,7 @@ class _FilterScreenState extends State<FilterScreen> {
           _companiesListBloc[index]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
+          _companiesListBloc[index].radioValue = true;
           clearDuplicateData();
           selectedcompanies.add(
               Provider.of<GetAdvancedSearchProvider>(context, listen: false)
@@ -984,6 +994,7 @@ class _FilterScreenState extends State<FilterScreen> {
     } else if (dropdownIndex == 1) {
       if (_ranksListBloc[index].radioValue) {
         _ranksListBloc[index].eventRadioButtonSink.add(RadioButtonAction.False);
+        _ranksListBloc[index].radioValue = false;
         selectedranks.removeAt(selectedranks.indexOf(
             Provider.of<GetAdvancedSearchProvider>(context, listen: false)
                 .rankName[index]));
@@ -1001,6 +1012,7 @@ class _FilterScreenState extends State<FilterScreen> {
           _ranksListBloc[index]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
+          _ranksListBloc[index].radioValue = true;
           clearDuplicateData();
           selectedranks.add(
               Provider.of<GetAdvancedSearchProvider>(context, listen: false)
@@ -1019,6 +1031,7 @@ class _FilterScreenState extends State<FilterScreen> {
         _vesselsListBloc[index]
             .eventRadioButtonSink
             .add(RadioButtonAction.False);
+        _vesselsListBloc[index].radioValue = false;
         selectedvessels.removeAt(selectedvessels.indexOf(
             Provider.of<GetAdvancedSearchProvider>(context, listen: false)
                 .vesselName[index]));
@@ -1036,6 +1049,7 @@ class _FilterScreenState extends State<FilterScreen> {
           _vesselsListBloc[index]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
+          _vesselsListBloc[index].radioValue = true;
           clearDuplicateData();
           selectedvessels.add(
               Provider.of<GetAdvancedSearchProvider>(context, listen: false)
@@ -1054,6 +1068,7 @@ class _FilterScreenState extends State<FilterScreen> {
         _nationalityListBloc[index]
             .eventRadioButtonSink
             .add(RadioButtonAction.False);
+        _nationalityListBloc[index].radioValue = false;
         selectednationality.removeAt(selectednationality.indexOf(
             Provider.of<GetAdvancedSearchProvider>(context, listen: false)
                 .nationalityName[index]));
@@ -1071,6 +1086,7 @@ class _FilterScreenState extends State<FilterScreen> {
           _nationalityListBloc[index]
               .eventRadioButtonSink
               .add(RadioButtonAction.True);
+          _nationalityListBloc[index].radioValue = true;
           clearDuplicateData();
           selectednationality.add(
               Provider.of<GetAdvancedSearchProvider>(context, listen: false)
@@ -1095,6 +1111,11 @@ class _FilterScreenState extends State<FilterScreen> {
                   .indexOf(selectedcompanies[i])]
           .eventRadioButtonSink
           .add(RadioButtonAction.False);
+      _companiesListBloc[
+              Provider.of<GetAdvancedSearchProvider>(context, listen: false)
+                  .companyName
+                  .indexOf(selectedcompanies[i])]
+          .radioValue = false;
       selectedcompanies.removeAt(i);
       _displaySelectedItemBloc[dropdownIndex]
           .eventRadioButtonSink
@@ -1109,6 +1130,11 @@ class _FilterScreenState extends State<FilterScreen> {
                   .indexOf(selectedranks[i])]
           .eventRadioButtonSink
           .add(RadioButtonAction.False);
+      _ranksListBloc[
+              Provider.of<GetAdvancedSearchProvider>(context, listen: false)
+                  .rankName
+                  .indexOf(selectedranks[i])]
+          .radioValue = false;
       selectedranks.removeAt(i);
       _displaySelectedItemBloc[dropdownIndex]
           .eventRadioButtonSink
@@ -1123,6 +1149,11 @@ class _FilterScreenState extends State<FilterScreen> {
                   .indexOf(selectedvessels[i])]
           .eventRadioButtonSink
           .add(RadioButtonAction.False);
+      _vesselsListBloc[
+              Provider.of<GetAdvancedSearchProvider>(context, listen: false)
+                  .vesselName
+                  .indexOf(selectedvessels[i])]
+          .radioValue = false;
       selectedvessels.removeAt(i);
       _displaySelectedItemBloc[dropdownIndex]
           .eventRadioButtonSink
@@ -1131,12 +1162,20 @@ class _FilterScreenState extends State<FilterScreen> {
           .eventRadioButtonSink
           .add(RadioButtonAction.True);
     } else {
+      print(selectednationality[i]);
+      print(Provider.of<GetAdvancedSearchProvider>(context, listen: false)
+          .nationalityName);
       _nationalityListBloc[
               Provider.of<GetAdvancedSearchProvider>(context, listen: false)
                   .nationalityName
                   .indexOf(selectednationality[i])]
           .eventRadioButtonSink
           .add(RadioButtonAction.False);
+      _nationalityListBloc[
+              Provider.of<GetAdvancedSearchProvider>(context, listen: false)
+                  .nationalityName
+                  .indexOf(selectednationality[i])]
+          .radioValue = false;
       selectednationality.removeAt(i);
       _displaySelectedItemBloc[dropdownIndex]
           .eventRadioButtonSink
@@ -1147,7 +1186,7 @@ class _FilterScreenState extends State<FilterScreen> {
     }
   }
 
-  callfiltersApi()  {
+  callfiltersApi() {
     List<String> selectedcompanyid = [],
         selectedrankid = [],
         selectedvesselid = [],

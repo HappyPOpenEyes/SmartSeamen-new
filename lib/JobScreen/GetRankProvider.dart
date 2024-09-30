@@ -11,37 +11,37 @@ class GetApplyRankProvider extends ChangeNotifier {
     success = false;
     rankName = [];
     rankId = [];
-    try {
-      var response = await http.get(
-        Uri.parse(apiurl + '/resume/getrankdetail/' + jobId),
-        headers: {
-          "Content-Type": "application/json",
-          "Accept": "application/json",
-          "Authorization": header
-        },
-      );
+    //try {
+    var response = await http.get(
+      Uri.parse(apiurl + '/resume/getrankdetail/' + jobId),
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": header
+      },
+    );
 
-      print(response.statusCode);
-      print(response.body);
+    print(response.statusCode);
+    print(response.body);
 
-      SharedPreferences prefs = await SharedPreferences.getInstance();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
 
-      if (response.statusCode == 200) {
-        ApplyRankResponse _applyRankResponse =
-            applyRankResponseFromJson(response.body);
-        for (int i = 0; i < _applyRankResponse.data.length; i++) {
-          rankName.add(_applyRankResponse.data[i].rankName);
-          rankId.add(_applyRankResponse.data[i].rankId);
-        }
-        return success = true;
-      } else if (response.statusCode == 422) {
-        return success = false;
-      } else {
-        return success = false;
+    if (response.statusCode == 200) {
+      ApplyRankResponse _applyRankResponse =
+          applyRankResponseFromJson(response.body);
+      for (int i = 0; i < _applyRankResponse.data.length; i++) {
+        rankName.add(_applyRankResponse.data[i].rankName);
+        rankId.add(_applyRankResponse.data[i].rankId);
       }
-    } catch (err) {
-      print(err.toString());
+      return success = true;
+    } else if (response.statusCode == 422) {
+      return success = false;
+    } else {
       return success = false;
     }
+    // } catch (err) {
+    //   print(err.toString());
+    //   return success = false;
+    // }
   }
 }

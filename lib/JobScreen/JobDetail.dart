@@ -36,10 +36,11 @@ class JobDetail extends StatefulWidget {
 
 class _JobDetailState extends State<JobDetail> {
   String companyId;
-  final RadioButtonBloc _showDialogBloc = RadioButtonBloc(),
-      _dropdownShowBloc = RadioButtonBloc(),
+  final RadioButtonBloc _dropdownShowBloc = RadioButtonBloc(),
       _displaySelectedItemBloc = RadioButtonBloc();
-  final List<RadioButtonBloc> _ranksListBloc = [], _applyTextBloc = [];
+  final IndosNoBloc _showDialogBloc = IndosNoBloc();
+  final List<RadioButtonBloc> _ranksListBloc = [];
+  final List<IndosNoBloc> _applyTextBloc = [];
   List<String> selectedranks = [];
   bool isStrechedDropDown = false;
   _JobDetailState({required this.companyId});
@@ -54,7 +55,7 @@ class _JobDetailState extends State<JobDetail> {
   final _dropdownBloc = DropdownBloc();
   final _errorRankBloc = ResumeErrorIssuingAuthorityBloc();
   String rankValue = "";
-  final _showDropdown = IndosNoBloc ();
+  final _showDropdown = IndosNoBloc();
   @override
   void initState() {
     // TODO: implement initState
@@ -211,6 +212,41 @@ class _JobDetailState extends State<JobDetail> {
   }
 
   _displayRankDialog() {
+    return showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            height: MediaQuery.of(context).size.height * 0.35,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  const Text(
+                    'Select Ranks',
+                    style: TextStyle(color: Colors.black),
+                  ),
+                  _displayRankCondition(),
+                  _displayErrorText(),
+                  ElevatedButton(
+                      style: buttonStyle(),
+                      child: const Text("OK"),
+                      onPressed: () {
+                        print(rankValue);
+                        if (rankValue != null) {
+                          if (rankValue.isEmpty) {
+                            _errorRankBloc.eventResumeIssuingAuthoritySink
+                                .add(ResumeErrorIssuingAuthorityAction.True);
+                          } else {
+                            _callApplyJob();
+                            Navigator.of(context).pop();
+                          }
+                        }
+                      }),
+                ],
+              ),
+            ),
+          );
+        });
     var alert = SizedBox(
         height: MediaQuery.of(context).size.height * 0.3,
         child: BackdropFilter(
@@ -272,6 +308,7 @@ class _JobDetailState extends State<JobDetail> {
 
   _displayRankDropDown() {
     //clearDuplicateData();
+
     return Stack(
       children: [
         Padding(
@@ -295,131 +332,139 @@ class _JobDetailState extends State<JobDetail> {
                     stream: _dropdownBloc.stateDropdownStrean,
                     builder: (context, dropdownsnapshot) {
                       return StreamBuilder(
-                        stream: _showDropdown
-                            .stateIndosNoStrean,
-                        builder: (context, dropdownsnapshot) {
-                          return Column(
-                            children: [
-                              DrodpownContainer(
-                                title: rankValue.isNotEmpty
-                                    ? rankValue
-                                    : 'Select Rank',
-                                searchHint: 'Search Rank',
-                                showDropDownBloc:
-                                    _showDropdown,
-                                originalList:
-                                    Provider.of<GetApplyRankProvider>(
-                                      context,
-                                      listen: false)
-                                  .rankName,
-                                showSearch: false,
-                              ),
-                              ExpandedSection(
-                                expand: _showDropdown
-                                    .isedited,
-                                height: 100,
-                                child: MyScrollbar(
-                                  builder: (context, scrollController2) =>
-                                      ListView.builder(
-                                          padding: const EdgeInsets.all(0),
-                                          controller: scrollController2,
-                                          shrinkWrap: true,
-                                          itemCount: Provider.of<
-                                                          SearchChangeProvider>(
-                                                      context,
-                                                      listen: false)
-                                                  .searchList
-                                                  .isNotEmpty
-                                              ? Provider.of<
-                                                          SearchChangeProvider>(
-                                                      context,
-                                                      listen: false)
-                                                  .searchList
-                                                  .length
-                                              : Provider.of<GetApplyRankProvider>(
-                                      context,
-                                      listen: false)
-                                  .rankName
-                                                  .length,
-                                          itemBuilder: (context, listindex) {
-                                            return Padding(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  InkWell(
-                                                    onTap: () async {
-                                                      _showDropdown.eventIndosNoSink
-                                                          .add(IndosNoAction
-                                                              .False);
-                                                      _errorRankBloc.eventResumeIssuingAuthoritySink
-                                                          .add(
-                                                              ResumeErrorIssuingAuthorityAction
-                                                                  .False);
-                                                      rankValue = Provider.of<
-                                                                      SearchChangeProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .searchList
-                                                              .isNotEmpty
-                                                          ? Provider.of<SearchChangeProvider>(
-                                                                      context,
-                                                                      listen: false)
-                                                                  .searchList[
-                                                              listindex]
-                                                          : Provider.of<GetApplyRankProvider>(
-                                      context,
-                                      listen: false)
-                                  .rankName[listindex];
-
-                                                      _dropdownBloc.setdropdownvalue(rankValue);
-                                                      _dropdownBloc
-                                                          .eventDropdownSink
-                                                          .add(DropdownAction
-                                                              .Update);
-                                                      Provider.of<SearchChangeProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .searchKeyword = "";
-                                                      Provider.of<SearchChangeProvider>(
-                                                              context,
-                                                              listen: false)
-                                                          .searchList = [];
-                                                      
-                                                    },
-                                                    child: Padding(
-                                                      padding: const EdgeInsets
-                                                              .symmetric(
-                                                          horizontal: 16),
-                                                      child: Text(Provider.of<
-                                                                      SearchChangeProvider>(
-                                                                  context,
-                                                                  listen: false)
-                                                              .searchList
-                                                              .isNotEmpty
-                                                          ? Provider.of<SearchChangeProvider>(
-                                                                      context,
-                                                                      listen: false)
-                                                                  .searchList[
-                                                              listindex]
-                                                          : Provider.of<GetApplyRankProvider>(
-                                      context,
-                                      listen: false)
-                                  .rankName[listindex]),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          }),
+                          stream: _showDropdown.stateIndosNoStrean,
+                          builder: (context, dropdownsnapshot) {
+                            return Column(
+                              children: [
+                                DrodpownContainer(
+                                  title: rankValue.isNotEmpty
+                                      ? rankValue
+                                      : 'Select Rank',
+                                  searchHint: 'Search Rank',
+                                  showDropDownBloc: _showDropdown,
+                                  originalList:
+                                      Provider.of<GetApplyRankProvider>(context,
+                                              listen: false)
+                                          .rankName,
+                                  showSearch: false,
                                 ),
-                              ),
-                            ],
-                          );
-                        });
-                    
+                                ExpandedSection(
+                                  expand: _showDropdown.isedited,
+                                  height: 100,
+                                  child: MyScrollbar(
+                                    builder: (context, scrollController2) =>
+                                        ListView.builder(
+                                            padding: const EdgeInsets.all(0),
+                                            controller: scrollController2,
+                                            shrinkWrap: true,
+                                            itemCount: Provider.of<
+                                                            SearchChangeProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .searchList
+                                                    .isNotEmpty
+                                                ? Provider.of<
+                                                            SearchChangeProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .searchList
+                                                    .length
+                                                : Provider.of<
+                                                            GetApplyRankProvider>(
+                                                        context,
+                                                        listen: false)
+                                                    .rankName
+                                                    .length,
+                                            itemBuilder: (context, listindex) {
+                                              return Padding(
+                                                padding:
+                                                    const EdgeInsets.all(8.0),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    InkWell(
+                                                      onTap: () async {
+                                                        _showDropdown
+                                                            .eventIndosNoSink
+                                                            .add(IndosNoAction
+                                                                .False);
+                                                        _errorRankBloc
+                                                            .eventResumeIssuingAuthoritySink
+                                                            .add(
+                                                                ResumeErrorIssuingAuthorityAction
+                                                                    .False);
+                                                        rankValue = Provider.of<
+                                                                        SearchChangeProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .searchList
+                                                                .isNotEmpty
+                                                            ? Provider.of<SearchChangeProvider>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .searchList[
+                                                                listindex]
+                                                            : Provider.of<GetApplyRankProvider>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .rankName[
+                                                                listindex];
+
+                                                        _dropdownBloc
+                                                            .setdropdownvalue(
+                                                                rankValue);
+                                                        _dropdownBloc
+                                                            .eventDropdownSink
+                                                            .add(DropdownAction
+                                                                .Update);
+                                                        Provider.of<SearchChangeProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .searchKeyword = "";
+                                                        Provider.of<SearchChangeProvider>(
+                                                                context,
+                                                                listen: false)
+                                                            .searchList = [];
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                    .symmetric(
+                                                                horizontal: 16),
+                                                        child: Text(Provider.of<
+                                                                        SearchChangeProvider>(
+                                                                    context,
+                                                                    listen:
+                                                                        false)
+                                                                .searchList
+                                                                .isNotEmpty
+                                                            ? Provider.of<SearchChangeProvider>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .searchList[
+                                                                listindex]
+                                                            : Provider.of<GetApplyRankProvider>(
+                                                                        context,
+                                                                        listen:
+                                                                            false)
+                                                                    .rankName[
+                                                                listindex]),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                            }),
+                                  ),
+                                ),
+                              ],
+                            );
+                          });
                     },
                   ),
                 );
@@ -450,17 +495,26 @@ class _JobDetailState extends State<JobDetail> {
         _ranksListBloc[i].eventRadioButtonSink.add(RadioButtonAction.False);
         _ranksListBloc[i].radioValue = false;
       }
-      _showDialogBloc.eventRadioButtonSink.add(RadioButtonAction.True);
+      _showDialogBloc.eventIndosNoSink.add(IndosNoAction.True);
+      _showDialogBloc.isedited = true;
+      _displayRankDialog();
     }
     Provider.of<AsyncCallProvider>(context, listen: false).changeAsynccall();
   }
 
   _displayRankCondition() {
     return StreamBuilder(
-      stream: _showDialogBloc.stateRadioButtonStrean,
+      stream: _showDialogBloc.stateIndosNoStrean,
       builder: (context, snapshot) {
-        if (snapshot.hasData && _showDialogBloc.radioValue) {
-          return _displayRankDropDown();
+        print('data is');
+        print(_showDialogBloc.isedited);
+        print(snapshot.hasData);
+        if (_showDialogBloc.isedited) {
+          print('displaying');
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: _displayRankDropDown(),
+          );
         } else {
           return const SizedBox();
         }
@@ -501,8 +555,8 @@ class _JobDetailState extends State<JobDetail> {
       displaysnackbar('Job application submitted successfully');
       _applyTextBloc[Provider.of<GetJobDetailProvider>(context, listen: false)
               .currentIndex]
-          .eventRadioButtonSink
-          .add(RadioButtonAction.True);
+          .eventIndosNoSink
+          .add(IndosNoAction.True);
       Provider.of<GetJobDetailProvider>(context, listen: false).isApplied[
           Provider.of<GetJobDetailProvider>(context, listen: false)
               .currentIndex] = true;
@@ -518,9 +572,9 @@ class _JobDetailState extends State<JobDetail> {
       stream: _applyTextBloc[
               Provider.of<GetJobDetailProvider>(context, listen: false)
                   .currentIndex]
-          .stateRadioButtonStrean,
+          .stateIndosNoStrean,
       builder: (context, snapshot) {
-        if (snapshot.data == null) {
+        if (snapshot.hasData) {
           if (Provider.of<GetJobDetailProvider>(context, listen: false)
                   .isApplied[
               Provider.of<GetJobDetailProvider>(context, listen: false)
@@ -528,14 +582,14 @@ class _JobDetailState extends State<JobDetail> {
             _applyTextBloc[
                     Provider.of<GetJobDetailProvider>(context, listen: false)
                         .currentIndex]
-                .eventRadioButtonSink
-                .add(RadioButtonAction.True);
+                .eventIndosNoSink
+                .add(IndosNoAction.True);
           } else {
             _applyTextBloc[
                     Provider.of<GetJobDetailProvider>(context, listen: false)
                         .currentIndex]
-                .eventRadioButtonSink
-                .add(RadioButtonAction.False);
+                .eventIndosNoSink
+                .add(IndosNoAction.False);
           }
         }
         return Column(
@@ -546,7 +600,7 @@ class _JobDetailState extends State<JobDetail> {
                 if (!_applyTextBloc[Provider.of<GetJobDetailProvider>(context,
                             listen: false)
                         .currentIndex]
-                    .radioValue) {
+                    .isedited) {
                   if (Provider.of<UserDataProvider>(context, listen: false)
                           .jobAppPerDay <=
                       Provider.of<GetJobListProvider>(context, listen: false)
@@ -559,25 +613,20 @@ class _JobDetailState extends State<JobDetail> {
                           .changeAsynccall();
                     }
                     _getRanks();
-
-                    _displayRankDialog();
                   }
                 }
               },
-              style: snapshot.hasData &&
-                      _applyTextBloc[Provider.of<GetJobDetailProvider>(context,
-                                  listen: false)
-                              .currentIndex]
-                          .radioValue
+              style: _applyTextBloc[Provider.of<GetJobDetailProvider>(context,
+                              listen: false)
+                          .currentIndex]
+                      .isedited
                   ? greybuttonStyle()
                   : buttonStyle(),
               child: Text(
-                snapshot.hasData &&
-                        _applyTextBloc[Provider.of<GetJobDetailProvider>(
-                                    context,
-                                    listen: false)
-                                .currentIndex]
-                            .radioValue
+                _applyTextBloc[Provider.of<GetJobDetailProvider>(context,
+                                listen: false)
+                            .currentIndex]
+                        .isedited
                     ? 'Applied'
                     : 'Apply Now',
                 style: const TextStyle(color: kbackgroundColor),
@@ -705,10 +754,11 @@ class _JobDetailState extends State<JobDetail> {
     }
     SharedPreferences prefs = await SharedPreferences.getInstance();
     header = prefs.getString('header');
+    print('Company id is');
     print(companyId);
     _dropdownShowBloc.radioValue = false;
-    _showDialogBloc.eventRadioButtonSink.add(RadioButtonAction.False);
-    _showDialogBloc.radioValue = false;
+    _showDialogBloc.eventIndosNoSink.add(IndosNoAction.False);
+    _showDialogBloc.isedited = false;
 
     AsyncCallProvider asyncProvider =
         Provider.of<AsyncCallProvider>(context, listen: false);
@@ -728,16 +778,16 @@ class _JobDetailState extends State<JobDetail> {
                 .length;
         i++) {
       print('Inside apply');
-      _applyTextBloc.add(RadioButtonBloc());
+      _applyTextBloc.add(IndosNoBloc());
       print(
           Provider.of<GetJobDetailProvider>(context, listen: false).isApplied);
       if (Provider.of<GetJobDetailProvider>(context, listen: false)
           .isApplied[i]) {
-        _applyTextBloc[i].eventRadioButtonSink.add(RadioButtonAction.True);
-        _applyTextBloc[i].radioValue = true;
+        _applyTextBloc[i].eventIndosNoSink.add(IndosNoAction.True);
+        _applyTextBloc[i].isedited = true;
       } else {
-        _applyTextBloc[i].eventRadioButtonSink.add(RadioButtonAction.False);
-        _applyTextBloc[i].radioValue = false;
+        _applyTextBloc[i].eventIndosNoSink.add(IndosNoAction.False);
+        _applyTextBloc[i].isedited = false;
       }
     }
 

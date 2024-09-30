@@ -25,7 +25,8 @@ class JobCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(15.0),
       ),
       child: InkWell(
-        onTap: () => Navigator.of(context).push(MaterialPageRoute(
+        onTap: () => 
+        Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => JobDetail(
                   companyId: checkCompanyId(context),
                 ))),

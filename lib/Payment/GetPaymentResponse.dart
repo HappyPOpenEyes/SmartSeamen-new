@@ -111,7 +111,7 @@ class Plan {
   int personalProfile;
   int customizedJobApplicationReceived;
   dynamic featuredJobPost;
-  int adminJobPostMonth;
+  int? adminJobPostMonth;
   dynamic profileView;
   dynamic crewNotification;
   dynamic addtionalUser;
@@ -142,7 +142,7 @@ class Plan {
         customizedJobApplicationReceived:
             json["customized_job_application_received"],
         featuredJobPost: json["featured_job_post"],
-        adminJobPostMonth: json["admin_job_post_month"],
+        adminJobPostMonth: json["admin_job_post_month"] ?? 0,
         profileView: json["profile_view"],
         crewNotification: json["crew_notification"],
         addtionalUser: json["addtional_user"],

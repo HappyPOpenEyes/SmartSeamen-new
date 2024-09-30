@@ -151,7 +151,7 @@ class Getrankdetail {
   String rankId;
   int noofPositions;
   int experience;
-  int number;
+  int? number;
   List<CocIssuing> cocIssuing;
   int isActive;
   String rank;

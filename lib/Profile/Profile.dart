@@ -655,7 +655,9 @@ class _ProfileScreenState extends State<ProfileScreen>
               const SizedBox(
                 height: 10,
               ),
-              Provider.of<UserDetailsProvider>(context).alternateemail != null
+              Provider.of<UserDetailsProvider>(context)
+                      .alternateemail
+                      .isNotEmpty
                   ? Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
                       child: Row(

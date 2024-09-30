@@ -271,7 +271,7 @@ class _EditDangerousCargoState extends State<EditDangerousCargo> {
                 .has_document[index],
             stream: _switchButtonBloc[index].stateSwitchButtonStrean,
             builder: (context, snapshot) {
-              if (snapshot.hasData && _switchButtonBloc[index].switchValue) {
+              if (_switchButtonBloc[index].switchValue) {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -449,9 +449,7 @@ class _EditDangerousCargoState extends State<EditDangerousCargo> {
             return FlutterSwitch(
               height: 20,
               width: MediaQuery.of(context).size.height * 0.06,
-              value: snapshot.hasData
-                  ? _switchButtonBloc[index].switchValue
-                  : false,
+              value: _switchButtonBloc[index].switchValue,
               onToggle: (val) {
                 _hasDocument[index] = val;
                 if (val) {
@@ -838,6 +836,8 @@ class _EditDangerousCargoState extends State<EditDangerousCargo> {
         _issuingBloc[i]
             .eventResumeIssuingAuthoritySink
             .add(ResumeIssuingAuthorityAction.Post);
+        _switchButtonBloc[i].eventSwitchButtonSink.add(SwitchButtonAction.True);
+        _switchButtonBloc[i].switchValue = true;
         _hasDocument[i] = true;
         _expirycontroller[i].text =
             Provider.of<ResumeDangerousCargoProvider>(context, listen: false)

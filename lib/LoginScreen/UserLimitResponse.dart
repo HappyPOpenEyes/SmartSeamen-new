@@ -197,7 +197,7 @@ class User {
   DateTime lastLoginDate;
   dynamic photo;
   String email;
-  String rankName;
+  String? rankName;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],

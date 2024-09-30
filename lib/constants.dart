@@ -49,12 +49,12 @@ const String kPhoneNumberLengthError = "Please enter a valid phone number";
 const String kAddressNullError = "Please enter your address";
 
 //Dev URLS
-const apiurl = 'https://api.smartseaman.devbyopeneyes.com/public/api';
-const imageapiurl = 'https://api.smartseaman.devbyopeneyes.com/public';
+// const apiurl = 'https://api.smartseaman.devbyopeneyes.com/public/api';
+// const imageapiurl = 'https://api.smartseaman.devbyopeneyes.com/public';
 
 //Uat URLS
-// const apiurl = 'https://api.smartseamen.uatbyopeneyes.com/public/api';
-// const imageapiurl = 'https://api.smartseamen.uatbyopeneyes.com/public';
+const apiurl = 'https://api.smartseamen.uatbyopeneyes.com/public/api';
+const imageapiurl = 'https://api.smartseamen.uatbyopeneyes.com/public';
 
 const indianNationalityId = "de8d6ee0-2698-11ec-b056-af049af35ecd";
 const otherNationalityId = "1";

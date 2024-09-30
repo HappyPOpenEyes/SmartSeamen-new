@@ -1999,15 +1999,11 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
                   .stateRadioButtonStrean,
       builder: (context, snapshot) {
         if (count == 0) {
-          checkPassportData(_validTillOptionsBloc[radioindex].radioValue);
+          checkPassportData();
         } else if (count == 1) {
-          checkVisaData(
-              _validTillOptionsVisaBloc[innerindex][radioindex].radioValue,
-              innerindex);
+          checkVisaData(innerindex);
         } else {
-          checkCDCData(
-              _validTillOptionsCDCBloc[innerindex][radioindex].radioValue,
-              innerindex);
+          checkCDCData(innerindex);
         }
         return Padding(
           padding: const EdgeInsets.all(2.0),
@@ -2057,6 +2053,9 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
                       _passportValidDateErrorBloc
                           .eventResumeIssuingAuthoritySink
                           .add(ResumeErrorIssuingAuthorityAction.False);
+                      print('Data here is');
+                      print(_validTillOptionsBloc[radioindex].radioValue);
+                      print(radioindex);
                     } else if (count == 1) {
                       _validTillOptionsVisaBloc[innerindex][radioindex]
                           .eventRadioButtonSink
@@ -2085,6 +2084,8 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
                         i++) {
                       if (i != radioindex) {
                         if (count == 0) {
+                          print('Disaengaginfg');
+                          print(i);
                           _validTillOptionsBloc[i]
                               .eventRadioButtonSink
                               .add(RadioButtonAction.False);
@@ -2232,7 +2233,13 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
     return isValid;
   }
 
-  void checkPassportData(bool value) {
+  void checkPassportData() {
+    bool value = false;
+    for (int i = 0; i < _validTillOptionsBloc.length; i++) {
+      if (_validTillOptionsBloc[i].radioValue) {
+        value = true;
+      }
+    }
     if (!value &&
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .passportId
@@ -2276,7 +2283,13 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
     }
   }
 
-  void checkVisaData(bool value, int innerindex) {
+  void checkVisaData(int innerindex) {
+    bool value = false;
+    for (int i = 0; i < _validTillOptionsVisaBloc[innerindex].length; i++) {
+      if (_validTillOptionsVisaBloc[innerindex][i].radioValue) {
+        value = true;
+      }
+    }
     if (innerindex <
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .visaExpiryDate
@@ -2326,7 +2339,13 @@ class _EditTravelDocumentState extends State<EditTravelDocument> {
     }
   }
 
-  void checkCDCData(bool value, int innerindex) {
+  void checkCDCData(int innerindex) {
+    bool value = false;
+    for (int i = 0; i < _validTillOptionsCDCBloc[innerindex].length; i++) {
+      if (_validTillOptionsCDCBloc[innerindex][i].radioValue) {
+        value = true;
+      }
+    }
     if (!value &&
         Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .cdcBookId

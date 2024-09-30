@@ -367,15 +367,9 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
               .stateRadioButtonStrean,
       builder: (context, snapshot) {
         if (isMandatory) {
-          checkMandatoryValidTillData(
-              _mandatoryValidTillOptionsCompetencyBloc[innerindex][radioindex]
-                  .radioValue,
-              innerindex);
+          checkMandatoryValidTillData(innerindex);
         } else {
-          checkOptionalValidTillData(
-              _optionalValidTillOptionsCompetencyBloc[innerindex][radioindex]
-                  .radioValue,
-              innerindex);
+          checkOptionalValidTillData(innerindex);
         }
         return Padding(
           padding: const EdgeInsets.all(4.0),
@@ -383,11 +377,14 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             children: [
               InkWell(
                 onTap: () {
-                  if (isMandatory) {
-                    checkMandatoryValidTill(radioindex, innerindex);
-                  } else {
-                    checkOptionalValidTill(radioindex, innerindex);
-                  }
+                  setState(() {
+                    if (isMandatory) {
+                      checkMandatoryValidTill(radioindex, innerindex);
+                    } else {
+                      checkOptionalValidTill(radioindex, innerindex);
+                    }  
+                  });
+                  
                 },
                 child: ValidTillOptions(
                     radioValue: isMandatory
@@ -1469,14 +1466,13 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
   }
 
   void checkMandatoryValidTill(int radioindex, int innerindex) {
-    setState(() {
+    
       if (radioindex == 2) {
         _mandatoryDisplayCompetencyValidDate[innerindex]
             .eventRadioButtonSink
             .add(RadioButtonAction.True);
         _mandatoryDisplayCompetencyValidDate[innerindex].radioValue = true;
       } else {
-        _mandatoryExpiryDateController[innerindex].clear();
         _mandatoryDisplayCompetencyValidDate[innerindex]
             .eventRadioButtonSink
             .add(RadioButtonAction.False);
@@ -1504,7 +1500,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
               false;
         }
       }
-    });
+    
   }
 
   void checkOptionalValidTill(int radioindex, int innerindex) {
@@ -1619,12 +1615,10 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
 
   void _assignTempData(bool isMandatory) {
     if (isMandatory) {
-      for (int i = 0;
-          i <
-              Provider.of<ResumeDocumentProvider>(context, listen: false)
-                      .competencyMandatoryLength -
-                  1;
-          i++) {
+      print('Adding');
+      print(_mandatoryTempCompetencyDocName.length);
+      print('================');
+      for (int i = 0; i < _mandatoryTempCompetencyDocName.length; i++) {
         _mandatoryDocValue[i] = _mandatoryTempCompetencyDocName[i];
         _mandatorySeamenBookNoController[i].text =
             _mandatoryTempCertificateNo[i];
@@ -1642,8 +1636,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
       for (int i = 0;
           i <
               Provider.of<ResumeDocumentProvider>(context, listen: false)
-                      .competencyOptionalLength -
-                  1;
+                  .competencyOptionalLength;
           i++) {
         _optionalDocValue[i] = _optionalTempCompetencyDocName[i];
         _optionalSeamenBookNoController[i].text = _optionalTempCertificateNo[i];
@@ -1713,7 +1706,15 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
     }
   }
 
-  void checkMandatoryValidTillData(bool value, int innerindex) {
+  void checkMandatoryValidTillData(int innerindex) {
+    bool value = false;
+    for (int i = 0;
+        i < _mandatoryValidTillOptionsCompetencyBloc[innerindex].length;
+        i++) {
+      if (_mandatoryValidTillOptionsCompetencyBloc[innerindex][i].radioValue) {
+        value = true;
+      }
+    }
     if (innerindex <
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .competencyExpiryDate
@@ -1769,7 +1770,15 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
     }
   }
 
-  void checkOptionalValidTillData(bool value, int innerindex) {
+  void checkOptionalValidTillData(int innerindex) {
+    bool value = false;
+    for (int i = 0;
+        i < _optionalValidTillOptionsCompetencyBloc[innerindex].length;
+        i++) {
+      if (_optionalValidTillOptionsCompetencyBloc[innerindex][i].radioValue) {
+        value = true;
+      }
+    }
     if (innerindex <
         Provider.of<ResumeDocumentProvider>(context, listen: false)
             .displayOptionalcompetencyExpiryDate
@@ -1968,6 +1977,14 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             .eventResumeIssuingAuthoritySink
             .add(ResumeErrorIssuingAuthorityAction.False);
         _mandatoryErrorComptencyDocName[index].showtext = false;
+        print('===========================');
+        print('Index');
+        print(index);
+        print(Provider.of<ResumeDocumentProvider>(context, listen: false)
+            .competencyMandatoryDocName);
+        print(_mandatoryDocValue[i]);
+        print(i);
+
         if ((Provider.of<ResumeDocumentProvider>(context, listen: false)
                         .competencyMandatoryDocId[
                     Provider.of<ResumeDocumentProvider>(context, listen: false)
@@ -1980,6 +1997,9 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
                         .indexOf(_mandatoryDocValue[index])]) &&
             _mandatoryIssuingValue[index] == _mandatoryIssuingValue[i] &&
             i != index) {
+          print(index);
+          print("lets check");
+          print(i);
           _mandatoryErrorCountryCodeBloc[index]
               .eventResumeIssuingAuthoritySink
               .add(ResumeErrorIssuingAuthorityAction.True);
@@ -2218,6 +2238,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
         if (Provider.of<ResumeDocumentProvider>(context, listen: false)
             .competencyCertificateNo
             .isNotEmpty) {
+          print('1');
           deleteEmptyRecord(isMandatory);
         }
       } else {
@@ -2225,6 +2246,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             Provider.of<ResumeDocumentProvider>(context, listen: false)
                 .competencyCertificateNo
                 .length) {
+          print('2');
           deleteEmptyRecord(isMandatory);
         } else {
           ResumeEditCompetencyRecordDeleteProvider cdcDeleteProvider =
@@ -2238,6 +2260,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
               Provider.of<ResumeDocumentProvider>(context, listen: false)
                   .competencyUserId[index],
               header)) {
+            print('3');
             asyncProvider.changeAsynccall();
             delteIndexRecord(index);
             if (checkMandatoryDocAvailability()) {
@@ -2309,6 +2332,9 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
         }
       }
     }
+    print('Length is');
+    print(Provider.of<ResumeDocumentProvider>(context, listen: false)
+        .competencyMandatoryLength);
   }
 
   void deleteEmptyRecord(bool isMandatory) {
@@ -2331,7 +2357,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             _mandatoryShowValidTillDate.removeLast();
             _mandatoryissuingAuthorityBloc.removeLast();
 
-            //cleardata();
+            cleardata();
 
             getdata();
           })
@@ -2350,7 +2376,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             _optionalSeamenBookNoController.removeLast();
             _optionalShowValidTillDate.removeLast();
             _optionalissuingAuthorityBloc.removeLast();
-            //cleardata();
+            cleardata();
             getdata();
           });
   }
@@ -2374,7 +2400,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
       _mandatoryShowValidTillDate.removeAt(index);
       _mandatoryissuingAuthorityBloc.removeAt(index);
 
-      //cleardata();
+      cleardata();
 
       getdata();
     });
@@ -2400,7 +2426,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             _mandatoryShowValidTillDate.removeAt(index);
             _mandatoryissuingAuthorityBloc.removeAt(index);
 
-            //cleardata();
+            cleardata();
 
             getdata();
           })
@@ -2419,7 +2445,7 @@ class _EditCompetencyDocumentsState extends State<EditCompetencyDocuments> {
             _optionalSeamenBookNoController.removeAt(index);
             _optionalShowValidTillDate.removeAt(index);
             _optionalissuingAuthorityBloc.removeAt(index);
-            //cleardata();
+            cleardata();
             getdata();
           });
   }

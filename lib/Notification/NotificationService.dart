@@ -55,10 +55,9 @@ class NotificationService {
                   icon: "@mipmap/ic_launcher",
                 ),
                 iOS: IOSNotificationDetails(
-                  presentAlert: true,
-                  presentSound: true,
-                  threadIdentifier: 'thread_id'
-                )));
+                    presentAlert: true,
+                    presentSound: true,
+                    threadIdentifier: 'thread_id')));
       }
     });
 

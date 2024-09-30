@@ -18,7 +18,7 @@ class ResumeEditSTCWDocUpdateProvider extends ChangeNotifier {
     };
 
     try {
-      var response = await http.post(Uri.parse('$apiurl/resume/medicaldoc'),
+      var response = await http.post(Uri.parse('$apiurl/resume/stcwdoc'),
           body: json.encode(body),
           headers: {
             "Content-Type": "application/json",
@@ -28,6 +28,7 @@ class ResumeEditSTCWDocUpdateProvider extends ChangeNotifier {
           encoding: Encoding.getByName("utf-8"));
 
       print(response.statusCode);
+      print(response.body);
 
       if (response.statusCode == 200) {
         return success = true;
